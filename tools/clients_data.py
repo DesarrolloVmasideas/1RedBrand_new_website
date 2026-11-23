@@ -24,4 +24,5 @@ CLIENTS = [
     ("laudex", "Laudex", (1096, 532, 1296, 664)),
     ("zamora-live", "Zamora Live", (1368, 524, 1540, 692)),
     ("una", "Unión Nacional Avícola", "logo_src/una.png"),
+    ("jp-hoteles", "JP Hoteles", "logo_src/jp-hoteles.png", 172),
 ]
