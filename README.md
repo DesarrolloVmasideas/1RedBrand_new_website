@@ -54,6 +54,7 @@ Requisitos: Python 3.10+ y Node.js 18+. Node solo se usa para leer el contenido 
 | Módulos e industrias (páginas interiores) | `tools/site_data.py` |
 | Textos de la Home | `index.html` y `assets/js/content.js` |
 | Artículos del blog | `tools/blog_data.py` |
+| Logos del carrusel de clientes (Home y Resultados) | `tools/clients_data.py`; los PNG se regeneran con `python tools/make_logos.py` |
 | Títulos, descripciones, datos estructurados, robots.txt, sitemap y llms.txt | `tools/seo.py` |
 
 Después de cualquier cambio:

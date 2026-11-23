@@ -2,15 +2,16 @@
 """Genera las páginas interiores estáticas de 1RedBrand.
 Uso:  python tools/build_pages.py   (desde la raíz del proyecto)
 Edita el contenido en tools/site_data.py y vuelve a correr el script."""
-import os, re, sys, json, subprocess
+import os, re, sys, json, struct, subprocess
 sys.path.insert(0, os.path.dirname(__file__))
 from site_data import MODULES, INDUSTRIES, STEPS, GUIDES, MORE
 from blog_data import POSTS
 from legal_data import TERMS, PRIVACY
+from clients_data import CLIENTS
 import seo
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-V = "25"
+V = "26"
 MOD = {m["id"]: m for m in MODULES}
 IND = {d["id"]: d for d in INDUSTRIES}
 
@@ -410,6 +411,32 @@ def platform_page():
 {final(READY, (("Agenda una demo", "Book a demo"), "/contacto/"))}'''
     return page("plataforma", "Plataforma", "1RedBrand: plataforma modular de gobernanza y automatización de branding y marketing, con 8 módulos que funcionan por separado o integrados.", "plataforma", body, nodes=[seo.platform(MODULES)])
 
+
+# --------------------------------------------------------------- carrusel de clientes (Home y Resultados)
+def png_size(path):
+    with open(path, "rb") as f:
+        head = f.read(24)
+    return struct.unpack(">II", head[16:24])
+
+LOGO_SCALE = {"mottoz": 0.82, "zamora-live": 0.82}  # logos de bloque sólido pesan más a la vista
+
+def clients_bar(sid="clientes", extra=""):
+    """Barra de logotipos en movimiento continuo. Solo logos: sin módulos ni casos."""
+    items = []
+    for slug, name, *_ in CLIENTS:
+        w, h = png_size(os.path.join(ROOT, "assets", "img", "clients", f"{slug}.png"))
+        dh = round(min(66, 86 / (w / h) ** 0.55) * LOGO_SCALE.get(slug, 1))
+        items.append((slug, name, w, h, dh))
+    def ul(hidden):
+        lis = "".join(f'<li><img src="/assets/img/clients/{slug}.png?v={V}" alt="{"" if hidden else esc_attr(name)}" width="{w}" height="{h}" style="--h:{dh}" loading="lazy" decoding="async"></li>'
+                      for slug, name, w, h, dh in items)
+        hid = ' aria-hidden="true"' if hidden else ""
+        return f'<ul class="marquee__list"{hid}>{lis}</ul>'
+    title = B("Organizaciones que trabajan con 1RedBrand.", "Organizations that work with 1RedBrand.")
+    return (f'<section class="logobar" id="{sid}" aria-labelledby="{sid}-t"{extra}>\n'
+            f'  <div class="wrap"><h2 class="logobar__t" id="{sid}-t">{title}</h2></div>\n'
+            f'  <div class="marquee">{ul(False)}{ul(True)}</div>\n</section>')
+
 # --------------------------------------------------------------- resultados
 def results_page():
     inds = "".join(f'<li><a class="link" href="/industrias/{d["id"]}/">{B(d["name"])}</a></li>' for d in INDUSTRIES)
@@ -434,6 +461,8 @@ def results_page():
     </div>
   </div>
 </section>
+
+{clients_bar()}
 
 <section class="sec">
   <div class="wrap">
@@ -698,6 +727,10 @@ def update_home_seo(src):
                  lambda m: m.group(1) + mods + m.group(2), src, count=1, flags=re.S)
     src = re.sub(r'(<div class="ind__rail" data-ind-rail[^>]*>).*?(</div>\n  <div class="wrap"><div class="ind__bar">)',
                  lambda m: m.group(1) + inds + m.group(2), src, count=1, flags=re.S)
+    bar = clients_bar(extra=" data-thread").replace('src="/assets/', 'src="assets/')
+    src = re.sub(r'<!-- ============ CLIENTES ============ -->\n<section class="logobar".*?</section>\n\n', "", src, count=1, flags=re.S)
+    src = src.replace("<!-- ============ RECURSOS ============ -->",
+                      "<!-- ============ CLIENTES ============ -->\n" + bar + "\n\n<!-- ============ RECURSOS ============ -->", 1)
     src = re.sub(r'(<ul data-foot-modules>).*?(</ul>)', lambda m: m.group(1) + fmods + m.group(2), src, count=1, flags=re.S)
     src = re.sub(r'(<ul data-foot-ind>).*?(</ul>)', lambda m: m.group(1) + finds + m.group(2), src, count=1, flags=re.S)
     return src

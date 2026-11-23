@@ -665,3 +665,32 @@ html,body{overflow-x:clip}
 .nav .dd .dd__link{padding:.7rem .8rem}
 .nav .dd .link{font-weight:500;font-size:.92rem;padding-bottom:3px}
 @media (max-width:959px){ .nav .dd .dd__link{padding:.55rem .2rem} .nav .dd .link{font-size:1rem} }
+
+/* ---------- carrusel de clientes (Home y Resultados) ----------
+   Arranca en --pad-l para no cruzar el hilo, que baja por el margen izquierdo. */
+.logobar{position:relative;padding:72px 0 32px;background:var(--paper)}
+.logobar__t{font-size:clamp(1.15rem,2.4vw,1.5rem);font-weight:400;line-height:1.3;color:var(--ink-2);margin:0 0 32px}
+.marquee{
+  position:relative;z-index:1;display:flex;overflow:hidden;margin-left:var(--pad-l);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+}
+.marquee__list{
+  display:flex;align-items:center;flex-shrink:0;gap:clamp(44px,6vw,96px);
+  margin:0;padding:8px clamp(44px,6vw,96px) 8px 0;list-style:none;
+  animation:marquee 70s linear infinite;
+}
+.marquee:hover .marquee__list{animation-play-state:paused}
+.marquee__list li{flex-shrink:0}
+.marquee__list img{display:block;width:auto;height:calc(var(--h) * 1px);opacity:.78}
+@keyframes marquee{to{transform:translateX(-100%)}}
+@media (max-width:767px){
+  .logobar{padding:52px 0 24px}
+  .logobar__t{margin-bottom:24px}
+  .marquee__list img{height:calc(var(--h) * .72px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .marquee{overflow-x:auto;scrollbar-width:none}
+  .marquee__list{animation:none}
+  .marquee__list[aria-hidden]{display:none}
+}

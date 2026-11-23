@@ -9,7 +9,7 @@ import os, zipfile, datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EXCLUDE_DIRS = {"tools", "dist", ".git", ".claude", "__pycache__"}
 EXCLUDE_FILES = {"README.md", ".gitignore", ".gitattributes", "nginx-1redbrand.conf", "_headers", ".htaccess"}
-EXCLUDE_PATHS = {os.path.join("assets", "img", "clients")}  # logos sin uso en el sitio
+EXCLUDE_PATHS = set()
 SERVER_FILES = ["nginx-1redbrand.conf", ".htaccess", "_headers"]
 
 def main():
