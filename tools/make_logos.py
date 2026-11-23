@@ -3,7 +3,7 @@
 (tinta negra con transparencia) en assets/img/clients/. El color final lo da el CSS.
 Uso: python tools/make_logos.py   (requiere Pillow)"""
 import os, statistics
-from PIL import Image
+from PIL import Image, ImageOps
 from clients_data import SOURCE, CLIENTS
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,7 +19,12 @@ def main():
     sheet = Image.open(SOURCE).convert("L")
     os.makedirs(OUT, exist_ok=True)
     for slug, name, box, *cut in CLIENTS:
-        g = sheet.crop(box)
+        if isinstance(box, str):              # logo en archivo propio (tools/logo_src/)
+            g = Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), box)).convert("L")
+            if corner_bg(g) < 128:            # logo claro sobre fondo oscuro: se invierte
+                g = ImageOps.invert(g)
+        else:
+            g = sheet.crop(box)
         if cut:
             bg = cut[0]
         else:

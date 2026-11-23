@@ -418,7 +418,7 @@ def png_size(path):
         head = f.read(24)
     return struct.unpack(">II", head[16:24])
 
-LOGO_SCALE = {"mottoz": 0.82, "zamora-live": 0.82}  # logos de bloque sólido pesan más a la vista
+LOGO_SCALE = {"mottoz": 0.82, "zamora-live": 0.82, "una": 1.2}  # bloques sólidos pesan más; UNA es vertical y de trazo fino
 
 def clients_bar(sid="clientes", extra=""):
     """Barra de logotipos en movimiento continuo. Solo logos: sin módulos ni casos."""
