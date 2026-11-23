@@ -2,6 +2,8 @@
 # En Apache (cPanel) se usa .htaccess, que tiene las mismas reglas.
 # Si después se agrega Google Analytics, Google Ads, Meta Pixel o un captcha,
 # hay que sumar sus dominios a script-src, connect-src, img-src y frame-src.
+# Idioma por país: estas plataformas no pueden poner la cookie rb-geo con este archivo;
+# sin ella, assets/js/lang.js usa el idioma del navegador.
 
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains

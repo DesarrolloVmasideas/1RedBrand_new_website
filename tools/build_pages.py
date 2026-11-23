@@ -6,10 +6,11 @@ import os, re, sys, json, subprocess
 sys.path.insert(0, os.path.dirname(__file__))
 from site_data import MODULES, INDUSTRIES, STEPS, GUIDES, MORE
 from blog_data import POSTS
+from legal_data import TERMS, PRIVACY
 import seo
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-V = "23"
+V = "25"
 MOD = {m["id"]: m for m in MODULES}
 IND = {d["id"]: d for d in INDUSTRIES}
 
@@ -97,7 +98,7 @@ def footer():
         <li><a href="/contacto/">{B("Contacto", "Contact")}</a></li></ul></div>
     </div>
     <div class="footer__legal">
-      <span>© 2026 1RedBrand LLC · <a href="https://www.1redbrand.com/en/Aviso_de_Privacidad_1RedBrand.pdf" target="_blank" rel="noopener">{B("Aviso de privacidad", "Privacy notice")}</a></span>
+      <span>© 2026 1RedBrand LLC · <a href="https://www.1redbrand.com/en/Aviso_de_Privacidad_1RedBrand.pdf" target="_blank" rel="noopener">{B("Aviso de privacidad", "Privacy notice")}</a> · <a href="/terminos/">{B("Términos y condiciones", "Terms and conditions")}</a></span>
       <button class="lang lang--foot" type="button" data-lang-toggle aria-label="Cambiar idioma / Change language">
         <span class="lang__opt" data-v="es">Español</span><span class="lang__opt" data-v="en">English</span>
       </button>
@@ -140,6 +141,7 @@ def page(path, title, desc, section, body, extra_js="", current_id=None, nodes=N
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/assets/js/lang.js?v={V}"></script>
 {seo.head_tags(path, t, desc, None if noindex else graph, noindex=noindex)}<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -479,14 +481,10 @@ def resources_page():
     return page("recursos", "Recursos", "Guías y artículos sobre gobernanza y automatización de branding y marketing.", "recursos", body)
 
 # --------------------------------------------------------------- blog
-MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
-MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-
-def post_page(p):
-    y, mo, d = (int(x) for x in p["date"].split("-"))
-    date = B(f"{d} de {MESES[mo - 1]} de {y}", f"{MONTHS[mo - 1]} {d}, {y}")
+def render_blocks(blocks):
+    """Bloques de contenido (blog, páginas legales) → lista de fragmentos HTML."""
     parts = []
-    for kind, c in p["blocks"]:
+    for kind, c in blocks:
         if kind == "h2":
             parts.append(f"<h2>{B(c)}</h2>")
         elif kind == "p":
@@ -496,6 +494,33 @@ def post_page(p):
         elif kind == "faq":
             qa = "".join(f'<div class="faq__item"><h3>{B(q)}</h3><p>{B(a)}</p></div>' for q, a in c)
             parts.append(f'<section class="faq" aria-labelledby="faq-t"><h2 id="faq-t">{B("Preguntas frecuentes", "Frequently asked questions")}</h2>{qa}</section>')
+    return parts
+
+def terms_page():
+    t = TERMS
+    y, mo, d = (int(x) for x in t["updated"].split("-"))
+    date = B(f"{d} de {MESES[mo - 1]} de {y}", f"{MONTHS[mo - 1]} {d}, {y}")
+    body = f'''{hero([HOME, (("Términos y condiciones", "Terms and conditions"), None)], ("Legal", "Legal"), t["title"], t["lede"],
+        [(("Contáctanos", "Contact us"), "/contacto/"), (("Aviso de privacidad", "Privacy notice"), PRIVACY)], "mark")}
+
+<section class="sec post-sec">
+  <article class="wrap post">
+    <p class="post__meta">{B("Última actualización", "Last updated")}: <time datetime="{t["updated"]}">{date}</time></p>
+    {"".join(render_blocks(t["blocks"]))}
+  </article>
+</section>
+
+{final(READY, (("Agenda una demo", "Book a demo"), "/contacto/"))}'''
+    page("terminos", t["title"][0], "Términos y condiciones de uso del sitio de 1RedBrand: uso permitido, propiedad intelectual, datos personales, cookies, responsabilidad y ley aplicable.", "", body)
+    return "terminos"
+
+MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+def post_page(p):
+    y, mo, d = (int(x) for x in p["date"].split("-"))
+    date = B(f"{d} de {MESES[mo - 1]} de {y}", f"{MONTHS[mo - 1]} {d}, {y}")
+    parts = render_blocks(p["blocks"])
     summary = "".join(f"<li>{B(x)}</li>" for x in p["summary"])
     path = f"blog/{p['slug']}"
     body = f'''{hero([HOME, (("Recursos", "Resources"), "/recursos/"), (("Blog", "Blog"), "/recursos/#blog"), (p["title"], None)],
@@ -658,7 +683,7 @@ def update_home_seo(src):
     desc = re.search(r'<meta name="description" content="([^"]*)">', src).group(1)
     t = seo.TITLES[""]
     graph = [seo.org(), seo.website(), seo.platform(MODULES), seo.webpage("", t, desc)]
-    head = seo.head_tags("", t, desc, graph, asset_prefix="")
+    head = f'<script src="assets/js/lang.js?v={V}"></script>\n' + seo.head_tags("", t, desc, graph, asset_prefix="")
     # todo lo que va entre viewport y las fuentes se regenera (título, descripción, canonical, OG, JSON-LD, iconos)
     src = re.sub(r'(<meta name="viewport"[^>]*>\n).*?(<link rel="preconnect" href="https://fonts\.googleapis\.com">)',
                  lambda m: m.group(1) + head + m.group(2), src, count=1, flags=re.S)
@@ -707,6 +732,7 @@ if __name__ == "__main__":
     out += [module_page(m) for m in MODULES]
     out += [industry_page(d) for d in INDUSTRIES]
     out += [post_page(p) for p in POSTS]
+    out.append(terms_page())
     not_found_page()
     root_files(out)
     print(len(out), "páginas + 404, robots.txt, sitemap.xml, llms.txt, security.txt:")

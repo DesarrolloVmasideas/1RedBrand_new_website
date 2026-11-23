@@ -20,6 +20,7 @@ TITLES = {
     "recursos": "Guías y recursos de gobernanza de marca | 1RedBrand",
     "compania": "Sobre 1RedBrand: plataforma modular de branding y marketing",
     "contacto": "Contacto y demo | 1RedBrand",
+    "terminos": "Términos y condiciones de uso | 1RedBrand",
 }
 MODULE_KW = {
     "branding-automation": "automatización de branding y aprobaciones",

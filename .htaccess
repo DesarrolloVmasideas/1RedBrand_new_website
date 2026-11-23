@@ -29,6 +29,15 @@ ErrorDocument 404 /404.html
   Header unset X-Powered-By
 </IfModule>
 
+# Idioma por país (assets/js/lang.js): cookie rb-geo con el código ISO del país.
+# Requiere mod_maxminddb y la base GeoLite2-Country de MaxMind. Descomentar para activar:
+# <IfModule mod_maxminddb.c>
+#   MaxMindDBEnable On
+#   MaxMindDBFile COUNTRY_DB /usr/share/GeoIP/GeoLite2-Country.mmdb
+#   MaxMindDBEnv RB_COUNTRY COUNTRY_DB/country/iso_code
+#   Header always set Set-Cookie "rb-geo=%{RB_COUNTRY}e; Path=/; Max-Age=86400; SameSite=Lax; Secure" env=RB_COUNTRY
+# </IfModule>
+
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/css "access plus 1 year"

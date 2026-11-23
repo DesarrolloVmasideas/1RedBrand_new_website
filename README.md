@@ -27,7 +27,8 @@ El dominio responde hoy desde **nginx**, que no lee `.htaccess`.
 3. **Subir el sitio.** Sube el contenido de `sitio/` a la raíz web, incluida la carpeta oculta `.well-known/`.
 4. **Configurar nginx.** Pega el contenido de `servidor/nginx-1redbrand.conf` dentro del bloque `server { }` del dominio con HTTPS. Luego ejecuta `nginx -t` y recarga nginx.
 5. **HTTPS y www.** El certificado HTTPS debe estar vigente (por ejemplo, Let's Encrypt). Los bloques de `:80` y del dominio sin www deben redirigir con `return 301 https://www.1redbrand.com$request_uri;`.
-6. **URLs anteriores.** Si el sitio actual tenía otras URLs indexadas en Google, hay que redirigirlas con 301 a su equivalente nuevo para no perder posicionamiento. Search Console muestra la lista de URLs indexadas.
+6. **Idioma por país (opcional, recomendado).** Para que los visitantes de fuera de países hispanohablantes vean el sitio en inglés, el servidor debe mandar la cookie `rb-geo` con el país del visitante. Las instrucciones están en `nginx-1redbrand.conf` (GeoIP2 de MaxMind o Cloudflare). Sin esa cookie, el sitio usa el idioma del navegador.
+7. **URLs anteriores.** Si el sitio actual tenía otras URLs indexadas en Google, hay que redirigirlas con 301 a su equivalente nuevo para no perder posicionamiento. Search Console muestra la lista de URLs indexadas.
 
 ### Comprobaciones después de publicar
 
